@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pregunta al modelo</title>
+</head>
+<body>
+    <h1>Pregunta al modelo</h1>
+    <input type="text" id="question" placeholder="Escribe tu pregunta en español">
+    <button onclick="askQuestion()">Preguntar</button>
+    <p id="answer"></p>
+
+    <h2>Subir nuevo PDF</h2>
+    <input type="file" id="pdfFile" accept=".pdf">
+    <button onclick="uploadPDF()">Subir PDF</button>
+    <p id="uploadStatus"></p>
+
+    <script>
+        async function askQuestion() {
+            const question = document.getElementById("question").value;
+            const response = await fetch("/ask", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ question, pdf_path: "textos/documento.pdf" }) // Cambia "documento.pdf" por el nombre del archivo subido
+            });
+            const data = await response.json();
+            document.getElementById("answer").innerText = data.answer;
+        }
+
+        async function uploadPDF() {
+            const fileInput = document.getElementById("pdfFile");
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            formData.append("file", file);
+
+            const response = await fetch("/upload", {
+                method: "POST",
+                body: formData
+            });
+            const data = await response.json();
+            document.getElementById("uploadStatus").innerText = data.status === "success" ? "PDF subido correctamente" : "Error al subir el PDF";
+        }
+    </script>
+</body>
+</html>
